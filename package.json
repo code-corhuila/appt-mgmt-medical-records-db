@@ -1,0 +1,12 @@
+{
+  "name": "appt-mgmt-medical-records-db",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node --test",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "docker compose exec mongodb mongosh --quiet mongodb://localhost:27017/SaludActiva_medical_records --file /migrations/001_create_medical_records.js",
+    "db:seed": "docker compose exec mongodb mongosh --quiet mongodb://localhost:27017/SaludActiva_medical_records --file /seed.js"
+  }
+}
