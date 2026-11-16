@@ -1,0 +1,5 @@
+project_id         = "replace-with-atlas-project-id"
+database_name      = "SaludActiva_medical_records"
+database_username  = "medical_records_app"
+database_password  = "replace-with-a-random-password"
+allowed_ip_address = "203.0.113.10"

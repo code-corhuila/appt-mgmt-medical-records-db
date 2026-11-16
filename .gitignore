@@ -1,0 +1,9 @@
+.env
+node_modules/
+*.log
+
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+!terraform/terraform.tfvars.example

@@ -1,25 +1,37 @@
-# appt-mgmt-medical-records-db
+# Medical Records Database
 
-> medical-records bounded context: database (schema, seeds, migrations)
+Persistencia del dominio de registros médicos de Salud Activa. Este repositorio contiene únicamente las colecciones de estudios médicos y medicamentos; autenticación, turnos y chat son responsabilidad de otros dominios.
 
-Part of the **LMS Library** distributed system — team `lms-library`, Grupo 2.
-Governance and documentation live in [`library-docs`](https://github.com/code-corhuila/library-docs).
+## Modelo de datos
 
-## Branching
+MongoDB 7 almacena dos colecciones:
 
-Three permanent branches. **None of them accepts a direct commit** — you enter through a child
-branch and leave through a Pull Request.
+- `estudios`: `usuarioId`, `titulo`, `fecha`, `tipo`, `resultadoBreve`, `urlDocumento` y `notas`.
+- `medicamentos`: `usuarioId`, `nombre`, `dosis`, `frecuencia`, `proximaToma` y `notas`.
 
+Los nombres y tipos de los campos requeridos mantienen compatibilidad con los modelos de Salud Activa. `usuarioId` es una referencia opaca al usuario propietario; no se replica información de autenticación. Ambas colecciones aceptan `created_at`, `updated_at` y `deleted_at` para auditoría y borrado lógico.
+
+## Desarrollo local
+
+Requiere Docker Compose y Node.js 18 o posterior.
+
+```sh
+Copy-Item .env.example .env
+npm test
+npm run db:up
 ```
-develop  <--PR--  feat/... fix/... chore/...
-qa       <--PR--  qa/...
-main     <--PR--  release/...  hotfix/...
+
+En un volumen nuevo, Compose ejecuta la migración y carga registros sintéticos de demostración. La base queda disponible solo en `127.0.0.1:27017`.
+
+Para volver a aplicar la migración o la semilla:
+
+```sh
+npm run db:migrate
+npm run db:seed
 ```
 
-Promotion happens **by re-application** (`git cherry-pick -x`), never by merging one permanent
-branch into another: `merge develop -> qa` and `merge qa -> main` do not exist in this model.
+La migración es idempotente y la semilla usa identificadores fijos con `upsert`; ejecutarlas otra vez no duplica ni sobrescribe registros existentes. `npm run db:down` detiene MongoDB sin borrar el volumen. No uses `docker compose down -v` si necesitas conservar los datos.
 
-`main` requires **1 approval from `ariel5253`**. On `develop` and `qa` the team sets its own review
-rule.
+## Atlas
 
-Full policy: `00-governance/branching-policy.md` in `library-docs`.
+`terraform/` administra un usuario con permisos `readWrite` sobre esta base y permite el acceso desde una sola IP. Requiere un proyecto y clúster Atlas existentes. Configura las credenciales del proveedor mediante `MONGODB_ATLAS_PUBLIC_KEY` y `MONGODB_ATLAS_PRIVATE_KEY`, copia `terraform/terraform.tfvars.example` a `terraform/terraform.tfvars` y reemplaza los valores de ejemplo antes de ejecutar Terraform. No subas secretos ni archivos de estado.

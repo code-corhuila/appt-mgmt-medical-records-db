@@ -1,0 +1,23 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: SaludActiva_medical_records
+    ports:
+      - "127.0.0.1:${MONGODB_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./migrations:/migrations:ro
+      - ./migrations/001_create_medical_records.js:/docker-entrypoint-initdb.d/001_create_medical_records.js:ro
+      - ./seed.js:/seed.js:ro
+      - ./seed.js:/docker-entrypoint-initdb.d/002_seed.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mongodb_data:
